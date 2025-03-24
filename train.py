@@ -182,3 +182,7 @@ def visualize_test_samples(model, test_loader, device, num_samples=3):
 
 # Example usage:
 visualize_test_samples(model, test_loader, device, num_samples=3)
+
+## TODO: Compute mean and std for random train test split and normalise
+## TODO: Why is the model so poor? Plot loss curve and test on better images
+## TODO: Try different loss functions
