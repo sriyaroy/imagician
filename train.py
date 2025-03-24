@@ -3,9 +3,13 @@ import torch
 import os
 from torchvision.io import read_image
 from torchvision import transforms
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader, Dataset, random_split
 import cv2
 from PIL import Image
+import unet
+import torch.nn as nn
+import torch.optim as optim
+import matplotlib.pyplot as plt
 
 
 # downsample and crop to 64 x 64 to create low_res counterpart
@@ -81,9 +85,100 @@ lr_dir = 'data-64x64-128x128/low_res'
 hr_dir = 'data-64x64-128x128/high_res'
 
 dataset = PairedImageDataset(lr_dir, hr_dir, transform_lr, transform_hr)
-loader = DataLoader(dataset, batch_size=10, shuffle=True)
 
-for lr, hr in loader:
-    print('low res batch shape:', lr.shape)
-    print('high res batch shape:', hr.shape)
-    break
+# Split train/test
+train_ratio = 0.8
+train_size = int(train_ratio * len(dataset))
+test_size = len(dataset) - train_size
+
+train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
+
+
+train_loader = DataLoader(train_dataset, batch_size=10, shuffle=True)
+test_loader = DataLoader(test_dataset, batch_size=10, shuffle=False)
+
+# Quick test to see batch shapes
+print(f'Train batch shape: {train_loader.dataset[0][0].shape}') 
+print(f'Test batch shape: {test_loader.dataset[0][0].shape}')
+
+### Training Loop ###
+model = unet.UNet()
+
+device = torch.device('cpu')
+model = model.to(device)
+
+# Loss and optimizer
+criterion = nn.MSELoss()
+optimiser = optim.Adam(model.parameters(), lr=1e-4)
+num_epochs = 100
+
+for epoch in range(num_epochs):
+    model.train()
+    running_loss = 0.0
+
+    for lr_imgs, hr_imgs in train_loader:
+        lr_imgs = lr_imgs.to(device)
+        hr_imgs = hr_imgs.to(device)
+
+        optimiser.zero_grad()
+
+        # forward pass
+        outputs = model(lr_imgs)
+
+        # Compute loss
+        loss = criterion(outputs, hr_imgs)
+
+        # backwards pass and optimisation
+        loss.backward()
+        optimiser.step()
+
+        running_loss += loss.item() * lr_imgs.size(0)
+
+    epoch_loss = running_loss / len(train_loader.dataset)
+    print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {epoch_loss:.4f}'.format(epoch+1, 10, epoch_loss))
+
+import matplotlib.pyplot as plt
+import numpy as np
+import torch
+
+def visualize_test_samples(model, test_loader, device, num_samples=3):
+    model.eval()  # Set the model to evaluation mode
+    with torch.no_grad():
+        for lr_imgs, hr_imgs in test_loader:
+            # Move images to device
+            lr_imgs = lr_imgs.to(device)
+            hr_imgs = hr_imgs.to(device)
+            outputs = model(lr_imgs)
+            
+            # Transfer to CPU and convert to numpy arrays
+            lr_imgs = lr_imgs.cpu().numpy()
+            outputs = outputs.cpu().numpy()
+            hr_imgs = hr_imgs.cpu().numpy()
+
+            # Plot a few samples
+            for i in range(min(num_samples, lr_imgs.shape[0])):
+                fig, axs = plt.subplots(1, 3, figsize=(12, 4))
+                
+                # Convert tensor shape from [C, H, W] to [H, W, C]
+                lr_img = np.transpose(lr_imgs[i], (1, 2, 0))
+                out_img = np.transpose(outputs[i], (1, 2, 0))
+                hr_img = np.transpose(hr_imgs[i], (1, 2, 0))
+                
+                # Display images
+                axs[0].imshow(lr_img)
+                axs[0].set_title("Low Resolution Input")
+                axs[0].axis("off")
+                
+                axs[1].imshow(out_img)
+                axs[1].set_title("Super Resolved Output")
+                axs[1].axis("off")
+                
+                axs[2].imshow(hr_img)
+                axs[2].set_title("High Resolution Ground Truth")
+                axs[2].axis("off")
+                
+                plt.show()
+            break  # Only visualize the first batch
+
+# Example usage:
+visualize_test_samples(model, test_loader, device, num_samples=3)
