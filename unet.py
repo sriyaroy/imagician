@@ -6,6 +6,8 @@ class UNet(nn.Module):
     def __init__(self):
         super(UNet, self).__init__()
 
+        self.bnorm = nn.BatchNorm2d(3)
+
         self.enc1 = nn.Sequential(nn.Conv2d(3, 64, 3, padding=1),
                                   nn.ReLU(),
                                   nn.BatchNorm2d(64))
@@ -31,12 +33,13 @@ class UNet(nn.Module):
                                   nn.ReLU(),
                                   nn.BatchNorm2d(64))
 
-        self.up3 = nn.ConvTranspose2d(64, 32, 2, stride=2)
+        self.up3 = nn.Sequential(nn.Upsample(scale_factor=2, mode='bilinear', align_corners=True),nn.Conv2d(64, 32, kernel_size=3, padding=1)) ## TODO: nn.Upsample
         self.final_conv = nn.Conv2d(32, 3, 1)
         self.final_activation = nn.Sigmoid()
 
     def forward(self, x):
-        enc1 = self.enc1(x)
+        bn1 = self.bnorm(x)
+        enc1 = self.enc1(bn1)
         p1 = self.pool1(enc1)
 
         enc2 = self.enc2(p1)
