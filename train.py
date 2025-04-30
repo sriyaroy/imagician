@@ -3,7 +3,7 @@ import torch
 import unet
 import torch.nn as nn
 import torch.optim as optim
-from dataset import train_loader, test_loader, val_loader
+from dataset import train_loader, test_loader
 import datetime
 from torch.utils.tensorboard import SummaryWriter
 
@@ -57,5 +57,3 @@ datetime = datetime.datetime.now()
 date = datetime.strftime('%Y-%m-%d')
 time = datetime.strftime('%H-%M-%S')
 torch.save(model.state_dict(), f'checkpoints/{date}-{time}.pth')
-
-## FINETUNING USING VALIDATION SET
