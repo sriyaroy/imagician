@@ -60,24 +60,23 @@ class PairedImageDataset(Dataset):
         return lr_im, hr_im
     
 ## Use your custom data loader and apply transforms required
-computed_mean = [0.5749, 0.5367, 0.4373]
-computed_std = [0.1970, 0.1929, 0.2085]
-
 transform_lr = transforms.Compose([transforms.ToTensor()])
 transform_hr = transforms.Compose([transforms.ToTensor()])
 
 dataset = PairedImageDataset(lr_dir, hr_dir, transform_lr, transform_hr)
 
 # Split train/test
-train_ratio = 0.8
+train_ratio = 0.7
 train_size = int(train_ratio * len(dataset))
-test_size = len(dataset) - train_size
+other_size = len(dataset) - train_size
 generator = torch.Generator().manual_seed(25)
 
-train_dataset, test_dataset = random_split(dataset, [train_size, test_size], generator=generator)
+train_dataset, other_dataset = random_split(dataset, [train_size, other_size], generator=generator)
+val_dataset, test_dataset = random_split(other_dataset, [int(other_size * 0.5), int(other_size * 0.5)], generator=generator)
 
 train_loader = DataLoader(train_dataset, batch_size=10, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=10, shuffle=False)
+val_loader = DataLoader(val_dataset, batch_size=10, shuffle=False)
 
 '''# USE TO CHECK WHICH FILES ARE IN TEST DATASET
 def list_files(msg, subset, n=None):

@@ -3,8 +3,9 @@ import torch
 import unet
 import torch.nn as nn
 import torch.optim as optim
-from dataset import train_loader, test_loader
+from dataset import train_loader, test_loader, val_loader
 import datetime
+from torch.utils.tensorboard import SummaryWriter
 
 
 # Quick test to see batch shapes
@@ -12,6 +13,7 @@ print(f'Train batch shape: {train_loader.dataset[0][0].shape}')
 print(f'Test batch shape: {test_loader.dataset[0][0].shape}')
 
 ### Training Loop ###
+writer = SummaryWriter()
 model = unet.UNet()
 
 device = torch.device('cpu')
@@ -37,6 +39,7 @@ for epoch in range(num_epochs):
 
         # Compute loss
         loss = criterion(outputs, hr_imgs)
+        writer.add_scalar('Loss/train', loss, epoch)
 
         # backwards pass and optimisation
         loss.backward()
@@ -48,7 +51,11 @@ for epoch in range(num_epochs):
     print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {epoch_loss:.4f}'.format(epoch+1, 10, epoch_loss))
 
 # Save the trained model
+writer.flush()
+writer.close()
 datetime = datetime.datetime.now()
 date = datetime.strftime('%Y-%m-%d')
 time = datetime.strftime('%H-%M-%S')
 torch.save(model.state_dict(), f'checkpoints/{date}-{time}.pth')
+
+## FINETUNING USING VALIDATION SET
