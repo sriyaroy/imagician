@@ -6,10 +6,12 @@ import unet
 
 ## SET CHECKPOINT TO VALIDATE
 model = unet.UNet()
-model.load_state_dict(torch.load('checkpoints/preprocess-normalised.pth'))
+model.load_state_dict(torch.load('checkpoints/2025-04-30-16-15-56.pth'))
 model.eval() # Set the model to evaluation mode
 
 device = torch.device('cpu')
+
+# Denormalise images from model
 
 def visualize_test_samples(model, test_loader, device, num_samples=3):
     with torch.no_grad():

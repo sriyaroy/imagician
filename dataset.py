@@ -63,8 +63,8 @@ class PairedImageDataset(Dataset):
 computed_mean = [0.5749, 0.5367, 0.4373]
 computed_std = [0.1970, 0.1929, 0.2085]
 
-transform_lr = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=computed_mean, std=computed_std)])
-transform_hr = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean=computed_mean, std=computed_std)])
+transform_lr = transforms.Compose([transforms.ToTensor()])
+transform_hr = transforms.Compose([transforms.ToTensor()])
 
 dataset = PairedImageDataset(lr_dir, hr_dir, transform_lr, transform_hr)
 
@@ -72,14 +72,14 @@ dataset = PairedImageDataset(lr_dir, hr_dir, transform_lr, transform_hr)
 train_ratio = 0.8
 train_size = int(train_ratio * len(dataset))
 test_size = len(dataset) - train_size
-generator = torch.Generator().manual_seed(42)
+generator = torch.Generator().manual_seed(25)
 
 train_dataset, test_dataset = random_split(dataset, [train_size, test_size], generator=generator)
 
 train_loader = DataLoader(train_dataset, batch_size=10, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=10, shuffle=False)
 
-''' # USE TO CHECK WHICH FILES ARE IN TEST DATASET: for current eval -> 64, 97, 61 
+'''# USE TO CHECK WHICH FILES ARE IN TEST DATASET
 def list_files(msg, subset, n=None):
     names = [subset.dataset.filenames[i] for i in subset.indices]
     print(f'{msg}: {len(names)} files')
