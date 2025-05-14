@@ -20,8 +20,8 @@ def lowRes(image_path, target_path):
     cv2.imwrite(image_path, hr_image)
     cv2.imwrite(target_path, lr_image)
 
-lr_dir = 'data-64x64-128x128/low_res'
-hr_dir = 'data-64x64-128x128/high_res'
+lr_dir = '/Users/sriyaroy/Developer/Super-resolution/Datasets/data-64x64-128x128/low_res'
+hr_dir = '/Users/sriyaroy/Developer/Super-resolution/Datasets/data-64x64-128x128/high_res'
 
 # Create dataset object for custom paired dataset
 class PairedImageDataset(Dataset):
