@@ -6,7 +6,7 @@ import unet
 
 ## SET CHECKPOINT TO VALIDATE
 model = unet.UNet()
-model.load_state_dict(torch.load('checkpoints/2025-04-30-16-15-56.pth'))
+model.load_state_dict(torch.load('checkpoints/2025-05-16-15-20-38.pth'))
 model.eval() # Set the model to evaluation mode
 
 device = torch.device('cpu')

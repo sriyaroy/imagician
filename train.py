@@ -16,7 +16,7 @@ print(f'Test batch shape: {test_loader.dataset[0][0].shape}')
 writer = SummaryWriter()
 model = unet.UNet()
 
-device = torch.device('cpu')
+device = torch.device('mps')
 model = model.to(device)
 
 # Loss and optimizer
