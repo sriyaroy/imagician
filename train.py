@@ -15,6 +15,7 @@ time = datetime.strftime('%H-%M-%S')
 
 ## REMEMBER TO SET THE FOLLOWING:
 unique_chkpt_name = input('Enter checkpoint name: ')
+num_epochs = int(input('Enter number of epochs: '))
 
 if not os.path.exists(f'model-runs/{date}-{time}-{unique_chkpt_name}'):
     os.makedirs(f'model-runs/{date}-{time}-{unique_chkpt_name}')
@@ -35,7 +36,6 @@ model = model.to(device)
 # Loss and optimizer
 criterion = nn.MSELoss()
 optimiser = optim.Adam(model.parameters(), lr=1e-4)
-num_epochs = 1
 
 for epoch in range(num_epochs):
     model.train()
