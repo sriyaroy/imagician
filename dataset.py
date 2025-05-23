@@ -76,12 +76,9 @@ train_dataset, test_dataset = random_split(dataset, [train_size, test_size], gen
 train_loader = DataLoader(train_dataset, batch_size=10, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=10, shuffle=False)
 
-'''# USE TO CHECK WHICH FILES ARE IN TEST DATASET
+# USE TO CHECK WHICH FILES ARE IN TEST DATASET
 def list_files(msg, subset, n=None):
     names = [subset.dataset.filenames[i] for i in subset.indices]
     print(f'{msg}: {len(names)} files')
     for name in names[:n]:
         print(' ', name)
-
-list_files('Test files:', test_dataset, n=10) 
-'''

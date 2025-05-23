@@ -6,11 +6,24 @@ import torch.optim as optim
 from dataset import train_loader, test_loader
 import datetime
 from torch.utils.tensorboard import SummaryWriter
+import os
 
+# Set up folders to save outputs
+datetime = datetime.datetime.now()
+date = datetime.strftime('%Y-%m-%d')
+time = datetime.strftime('%H-%M-%S')
 
-# Quick test to see batch shapes
-print(f'Train batch shape: {train_loader.dataset[0][0].shape}') 
-print(f'Test batch shape: {test_loader.dataset[0][0].shape}')
+## REMEMBER TO SET THE FOLLOWING:
+unique_chkpt_name = input('Enter checkpoint name: ')
+
+if not os.path.exists(f'model-runs/{date}-{time}-{unique_chkpt_name}'):
+    os.makedirs(f'model-runs/{date}-{time}-{unique_chkpt_name}')
+    os.makedirs(f'model-runs/{date}-{time}-{unique_chkpt_name}/checkpoints') # Create folder to store checkpoints
+    os.makedirs(f'model-runs/{date}-{time}-{unique_chkpt_name}/samples') # To save test dataset & (eventually) validation dataset
+    os.makedirs(f'model-runs/{date}-{time}-{unique_chkpt_name}/samples/test')
+
+if train_loader.batch_size != test_loader.batch_size:
+    raise ValueError('Train and test batches must be of the same size')
 
 ### Training Loop ###
 writer = SummaryWriter()
@@ -22,7 +35,7 @@ model = model.to(device)
 # Loss and optimizer
 criterion = nn.MSELoss()
 optimiser = optim.Adam(model.parameters(), lr=1e-4)
-num_epochs = 100
+num_epochs = 1
 
 for epoch in range(num_epochs):
     model.train()
@@ -53,7 +66,4 @@ for epoch in range(num_epochs):
 # Save the trained model
 writer.flush()
 writer.close()
-datetime = datetime.datetime.now()
-date = datetime.strftime('%Y-%m-%d')
-time = datetime.strftime('%H-%M-%S')
-torch.save(model.state_dict(), f'checkpoints/{date}-{time}.pth')
+torch.save(model.state_dict(), f'model-runs/{date}-{time}-{unique_chkpt_name}/checkpoints/epoch_{num_epochs}.pth')
