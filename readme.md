@@ -15,6 +15,8 @@ At this {link}[https://sriyaroy.notion.site/Design-Doc-18dfa72bedf1800a9c25e0c0c
 
 ## In this repo 📋
 
+### Date: 28th july 2025
+
 This repo is my work to build my own super resolution model from scratch after being inspired by the interesting research in this area. So far, I've built a basic U-net and trained this on roughly 3k images that I've sourced from popular super resolution datasets like DF2k and RealSRSet. I've recently implemented a tensorboard to visualise the loss curves and I have a strong feeling that overfitting is taking place based on the results on my validation images. There are a few areas to tackle this:
 - Creating a loss function that is more accurate to what we'd like the model learn (Currenlty, I've kept things simple with a L2 MSE loss but _this is not a good choice for super resolution due to its tendency to encourage blurriness)
 - Having some better metrics would be useful as well. So far I'm just watching my very basic loss go down which is not an accurate representation of the model's learning
